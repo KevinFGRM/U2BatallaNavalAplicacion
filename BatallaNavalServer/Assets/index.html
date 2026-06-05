@@ -1,0 +1,1522 @@
+﻿<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> Batalla Naval</title>
+    <!--<link rel="stylesheet" href="style.css">-->
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background-image: url('img/fondo2.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .contenedor {
+            height: calc(100% - 60px);
+            width: 100%;
+            max-width: 1400px;
+            padding: 20px;
+        }
+
+
+        .contlogin {
+            max-width: 600px;
+            margin: auto;
+            background: rgba(0,0,0,.85);
+            backdrop-filter: blur(10px);
+            border-radius: 35px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,.5);
+        }
+
+        .titulo {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+            background: linear-gradient( 135deg, #D9A066, #F2C572 );
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+
+
+        .input {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 50px;
+            text-align: center;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+            .input:focus {
+                outline: none;
+                box-shadow: 0 0 15px #F2C572;
+            }
+
+        .botonconect {
+            width: 100%;
+            border: none;
+            border-radius: 50px;
+            padding: 15px;
+            background-color: #D9A066;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: .3s;
+        }
+
+            .botonconect:hover {
+                background: #F2C572;
+                transform: translateY(-2px);
+            }
+
+        .botonconectdisable {
+            width: 100%;
+            border: none;
+            border-radius: 50px;
+            padding: 15px;
+            background-color: #c48141;
+            color: white;
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+
+        #juego {
+            background: rgba(0,0,0,.8);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 25px;
+        }
+
+        .mensaje {
+            background: #e2e8f0;
+            color: #0f172a;
+            padding: 12px;
+            border-radius: 50px;
+            text-align: center;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+
+
+        .tableros {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            margin: 25px 0;
+        }
+
+        .panel-tablero {
+            text-align: center;
+        }
+
+            .panel-tablero h2 {
+                color: white;
+                margin-bottom: 15px;
+            }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(10,40px);
+            gap: 4px;
+            background: rgba(255,255,255,.1);
+            padding: 12px;
+            border-radius: 20px;
+        }
+
+        .celda {
+            width: 40px;
+            height: 40px;
+            background: #dbeafe;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: .2s;
+        }
+
+            .celda:hover {
+                background: #93c5fd;
+                transform: scale(1.05);
+            }
+
+
+
+        .ship {
+            background: #22c55e;
+        }
+
+        .hit {
+            background-color: #dbeafe;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+            .hit.explosion {
+                background-image: url('img/explosion.png');
+                animation: explodeAnim 0.4s ease-out;
+            }
+
+            .hit.hundido {
+                background-image: url('img/hundido.png');
+            }
+
+        @keyframes explodeAnim {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.3);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .miss {
+            background: #38bdf8;
+        }
+
+        .sunk {
+            background: #f97316;
+        }
+
+
+
+        .estadisticas {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .estat {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #e2e8f0;
+            color: #0f172a;
+            padding: 12px 20px;
+            border-radius: 15px;
+            font-weight: bold;
+        }
+
+            .estat img {
+                width: 28px;
+                height: 28px;
+                object-fit: contain;
+            }
+
+        .botonreiniciar {
+            width: 100%;
+            margin-top: 20px;
+            border: none;
+            border-radius: 50px;
+            padding: 15px;
+            background: #D9A066;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: .3s;
+        }
+
+            .botonreiniciar:hover {
+                background: #F2C572;
+            }
+
+
+
+        .hidden {
+            display: none;
+        }
+
+        .img-barco {
+            width: 90%;
+            height: 90%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,.75);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .modal-contenido {
+            width: 90%;
+            max-width: 450px;
+            background: rgba(0,0,0,.85);
+            padding: 30px;
+            border-radius: 25px;
+            text-align: center;
+            animation: aparecer .3s ease;
+        }
+
+        .modal-icono {
+            width: 120px;
+            margin-bottom: 15px;
+        }
+
+        .modal-contenido h1 {
+            margin-bottom: 15px;
+            font-size: 2rem;
+            color: white;
+        }
+
+        .modal-contenido p {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+            color: white;
+        }
+
+        .modal-contenido button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            color: white;
+            font-weight: bold;
+        }
+
+        .victoria {
+            border-top: 10px solid #22c55e;
+        }
+
+            .victoria button {
+                background: #22c55e;
+            }
+
+        .derrota {
+            border-top: 10px solid #ef4444;
+        }
+
+            .derrota button {
+                background: #ef4444;
+            }
+
+
+
+
+
+        @keyframes aparecer {
+
+            from {
+                opacity: 0;
+                transform: scale(.7);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @media(max-width:900px) {
+
+            .board {
+                grid-template-columns: repeat(10,30px);
+            }
+
+            .celda {
+                width: 30px;
+                height: 30px;
+            }
+
+            .titulo {
+                font-size: 2rem;
+            }
+
+            .boton-barco {
+                width: 130px;
+                height: 95px;
+                padding: 8px;
+            }
+
+                .boton-barco img {
+                    height: 35px;
+                }
+
+            .boton-rotar {
+                width: 120px;
+                height: 95px;
+            }
+        }
+
+
+        #panelBarcos {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .boton-barco {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            background: #213550af;
+            border: 2px solid #88684934;
+            border-radius: 15px;
+            padding: 12px;
+            color: white;
+            cursor: pointer;
+            width: 160px;
+            height: 110px;
+        }
+
+            .boton-barco img {
+                width: 100%;
+                height: 45px;
+                object-fit: contain;
+                transition: transform 0.2s;
+            }
+
+            .boton-barco span {
+                font-size: 0.85rem;
+                font-weight: bold;
+                margin-top: 8px;
+                text-shadow: 1px 1px 2px black;
+            }
+
+            .boton-barco:hover {
+                background: #7a5a3b34;
+                border-color: #F2C572;
+            }
+
+            .boton-barco.seleccionado {
+                background: linear-gradient(135deg, #67472784, #684522a3);
+                border-color: #F2C572;
+                box-shadow: 0 0 20px #d9a06673;
+                transform: scale(1.05);
+            }
+
+                .boton-barco.seleccionado span {
+                    color: #F2C572;
+                }
+
+                .boton-barco.seleccionado img {
+                    transform: scale(1.1);
+                }
+
+        .boton-rotar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #D9A066;
+            border: none;
+            border-radius: 15px;
+            padding: 12px;
+            color: white;
+            cursor: pointer;
+            width: 140px;
+            height: 110px;
+            font-weight: bold;
+        }
+
+            .boton-rotar:hover {
+                background: #F2C572;
+                box-shadow: 0 5px 15px rgba(242, 197, 114, 0.4);
+            }
+
+        .icono-rotar {
+            width: 35px;
+            height: 35px;
+            object-fit: contain;
+            animation: spin 20s linear infinite;
+        }
+
+
+
+
+    </style>
+</head>
+<body>
+
+    <div class="contenedor">
+
+        <div id="login" class="contlogin">
+            <div class="titulo"> <img src="img/volante.png" style="height:50vh;" /> BATALLA NAVAL</div>
+            <input type="text" id="nombre" class="input" placeholder="Nombre de jugador..." maxlength="20">
+            <button id="btnConectar" class="botonconect"> Unirse a la partida</button>
+        </div>
+
+        <div id="juego" class="hidden">
+
+            <div class="titulo"> BATALLA NAVAL </div>
+
+            <div id="infoSala" class="mensaje"> Conectando...</div>
+
+            <div id="panelBarcos">
+                <button id="portaaviones" class="boton-barco">
+                    <img src="img/barcos/portaaviones_h.png" alt="Portaaviones" />
+                    <span>Portaaviones (5)</span>
+                </button>
+
+                <button id="acorazado" class="boton-barco">
+                    <img src="img/barcos/acorazado_h.png" alt="Acorazado" />
+                    <span>Acorazado (4)</span>
+                </button>
+
+                <button id="crucero" class="boton-barco">
+                    <img src="img/barcos/crucero_h.png" alt="Crucero" />
+                    <span>Crucero (3)</span>
+                </button>
+
+                <button id="submarino" class="boton-barco">
+                    <img src="img/barcos/submarino_h.png" alt="Submarino" />
+                    <span>Submarino (3)</span>
+                </button>
+
+                <button id="destructor" class="boton-barco">
+                    <img src="img/barcos/destructor_h.png" alt="Destructor" />
+                    <span>Destructor (2)</span>
+                </button>
+
+                <button class="boton-rotar" onclick="rotarBarco()">
+                    <img src="img/volante.png" alt="Rotar" class="icono-rotar" />
+                    <span>Orientación: <span id="orientacion">Horizontal</span></span>
+                </button>
+                <button id="jugarbtn" class="boton-rotar">
+                    <span>Listo</span>
+                </button>
+                <button id="btnAleatorio" class="boton-rotar" style="background: #22c55e;">
+                    <img src="img/dados.png" alt="Aleatorio" class="icono-rotar" style="animation: none;" />
+                    <span>Colocar Aleatorio</span>
+                </button>
+            </div>
+
+            <div class="tableros">
+
+
+                <div class="panel-tablero">
+
+                    <h2>Tripulacion</h2>
+
+                    <div id="tableroJugador" class="board"></div>
+
+                </div>
+                <div class="panel-tablero">
+
+
+                    <h2>Tripulacion Enemiga</h2>
+                    <div id="tableroEnemigo" class="board"></div>
+
+                </div>
+
+            </div>
+
+
+            <div id="estado" class="mensaje">Esperando jugador... </div>
+
+            <!--<div class="estadisticas">
+
+                <div class="estat">
+                    <img src="img/barco3.png" /> Barcos: <span id="barcos">5</span>
+                </div>
+
+                <div class="estat">
+                    <img src="img/explosion.png" /> Impactos: <span id="impactos">0</span>
+                </div>
+
+                <div class="estat">
+                    <img src="img/bolaCanon.png" /> Disparos: <span id="disparos">0</span>
+                </div>
+
+            </div>
+
+            <button id="btnReiniciar" class="botonreiniciar"> Nueva partida </button>-->
+        </div>
+    </div>
+
+
+    <div id="modalVictoria" class="hidden modal">
+
+        <div class="modal-contenido victoria">
+
+            <img src="img/moneda.png" class="modal-icono">
+
+            <h1>¡VICTORIA!</h1>
+            <p>Has destruido toda la tripulacion del enemigo</p>
+            <button onclick="reiniciarPartida()">Continuar</button>
+
+        </div>
+
+    </div>
+    <div id="modalDerrota" class="hidden modal">
+
+        <div class="modal-contenido derrota">
+
+            <img src="img/calavera.png" class="modal-icono">
+            <h1>¡DERROTA!</h1>
+            <p>Toda la tripulacion ha sido hundida</p>
+            <button onclick="reiniciarPartida()">Continuar</button>
+
+        </div>
+
+    </div>
+
+
+
+
+
+
+    <script>
+        let idJugador = null;
+        let estadoActual = null;
+        let barcoSeleccionado = null;
+        let horizontal = true;
+        const barcosInfo =
+        {
+            "1":
+            {
+                horizontal: "img/barcos/portaaviones_h.png",
+                vertical: "img/barcos/portaaviones_v.png",
+                tamaño: 5
+            },
+            "2":
+            {
+                horizontal: "img/barcos/acorazado_h.png",
+                vertical: "img/barcos/acorazado_v.png",
+                tamaño: 4
+            },
+            "3":
+            {
+                horizontal: "img/barcos/crucero_h.png",
+                vertical: "img/barcos/crucero_v.png",
+                tamaño: 3
+            },
+            "4":
+            {
+                horizontal: "img/barcos/submarino_h.png",
+                vertical: "img/barcos/submarino_v.png",
+                tamaño: 3
+            },
+            "5":
+            {
+                horizontal: "img/barcos/destructor_h.png",
+                vertical: "img/barcos/destructor_v.png",
+                tamaño: 2
+            }
+        };
+        let disparosAcertados = 0;
+        let disparosFallados = 0;
+
+
+        const login = document.getElementById('login');
+        const juego = document.getElementById('juego');
+        const btnConectar = document.getElementById('btnConectar');
+        //const btnReiniciar = document.getElementById('btnReiniciar');
+        const estadoDiv = document.getElementById('estado');
+        const infoSala = document.getElementById('infoSala');
+
+        //validar desconexion
+        let timerEspera = null;
+        let tiempoRestante = 30;
+        let esperaActiva = false;
+
+        function crearTablero(id, esEnemigo) {
+
+            const tablero = document.getElementById(id);
+            tablero.innerHTML = "";
+
+            for (let y = 0; y < 10; y++) {
+
+                for (let x = 0; x < 10; x++) {
+
+                    const celda = document.createElement("div");
+
+                    celda.classList.add("celda");
+
+                    celda.dataset.x = x;
+                    celda.dataset.y = y;
+
+                    if (esEnemigo) {
+                        celda.classList.add("enemigo");
+                    }
+                    else {
+                        celda.classList.add("propio");
+                    }
+
+                    tablero.appendChild(celda);
+                }
+            }
+        }
+        document.getElementById("tableroJugador").addEventListener("click", (e) => {
+            if (!e.target.classList.contains("celda") || e.target.classList.contains("enemigo"))
+                return;
+            const x = parseInt(e.target.dataset.x);
+            const y = parseInt(e.target.dataset.y);
+            colocarBarco(x, y);
+        });
+        document.getElementById("tableroEnemigo").addEventListener("click", (e) => {
+            if (!e.target.classList.contains("celda") || e.target.classList.contains("propio"))
+                return;
+            const x = parseInt(e.target.dataset.x);
+            const y = parseInt(e.target.dataset.y);
+            disparar(x, y);
+        });
+
+        async function disparar(x, y) {
+            try {
+                const response = await fetch("/batallanaval/disparar",
+                    {
+                        method: "POST",
+                        headers:
+                        {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            JugadorId: idJugador,
+                            X: x,
+                            Y: y
+                        })
+                    }
+                );
+
+                if (!response.ok) {
+
+                    alert("No fue posible realizar el disparo");
+                    return;
+                }
+                detenerTimerEspera();
+
+                estadoActual = await response.json();
+
+                estadoDiv.innerHTML = estadoActual.IdTurno == idJugador ? "Es tu turno" : "Turno enemigo";
+
+                cargarEstadoPartida(estadoActual);
+                if (estadoActual.IdTurno != idJugador) {
+                    esperar();
+                }
+                else {
+                    iniciarTimerEspera();
+                }
+            }
+            catch (error) {
+                alert("El combate todavia no inicia o el disparo no se pudo realizar.");
+                console.error(error);
+            }
+        }
+
+        function seleccionarBarco(nombre) {
+            barcoSeleccionado = nombre;
+
+            document.querySelectorAll('.boton-barco').forEach(boton => {
+                boton.classList.remove('seleccionado');
+            });
+
+            const botonActivo = document.getElementById(nombre.toLowerCase());
+            if (botonActivo) {
+                botonActivo.classList.add('seleccionado');
+            }
+
+            estadoDiv.innerHTML = `Barco seleccionado: ${nombre}`;
+        }
+
+        const orientacionSpan = document.getElementById("orientacion");
+        function rotarBarco() {
+
+            horizontal = !horizontal;
+
+            estadoDiv.innerHTML = `Barco seleccionado: ${barcoSeleccionado}`;
+            orientacionSpan.innerHTML = horizontal ? "Horizontal" : "Vertical";
+        }
+
+        async function colocarBarco(x, y) {
+
+            if (!barcoSeleccionado)
+                return;
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/batallanaval/posicionarbarco",
+                        {
+                            method: "POST",
+                            headers:
+                            {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                JugadorId: idJugador,
+                                NombreBarco: barcoSeleccionado,
+                                X: x,
+                                Y: y,
+                                Horizontal: horizontal
+                            })
+                        }
+                    );
+
+                if (!response.ok) {
+
+                    alert("No se pudo colocar el barco");
+                    return;
+                }
+
+                estadoActual = await response.json();
+
+                cargarEstadoPartida(estadoActual);
+
+            }
+            catch (error) {
+
+                console.error(error);
+            }
+        }
+
+        function obtenerCelda(tableroId, x, y) {
+            return document.querySelector(`#${tableroId} .celda[data-x="${x}"][data-y="${y}"]`);
+        }
+
+        function dibujarSegmentoBarco(
+            celda,
+            imagen,
+            tamaño,
+            segmento,
+            horizontal
+        ) {
+            const anchoCelda = 40;
+            const gap = 4;
+            if (celda.classList.contains("hit")) {
+                return;
+            }
+
+            // Limpiar estilos anteriores
+            celda.style.backgroundImage = "url('" + imagen + "')";
+            celda.style.backgroundRepeat = "no-repeat";
+            celda.style.backgroundColor = "#dbeafe";
+
+            if (horizontal) {
+                const anchoTotal = tamaño * anchoCelda + (tamaño - 1) * gap;
+                const desplazamientoX = -(segmento * (anchoCelda + gap));
+
+                celda.style.backgroundSize = anchoTotal + "px " + anchoCelda + "px";
+                celda.style.backgroundPosition = desplazamientoX + "px 0px";
+
+            }
+            else {
+                const altoTotal = tamaño * anchoCelda + (tamaño - 1) * gap;
+                const desplazamientoY = -(segmento * (anchoCelda + gap));
+
+                celda.style.backgroundSize = anchoCelda + "px " + altoTotal + "px";
+                celda.style.backgroundPosition = "0px " + desplazamientoY + "px";
+            }
+
+            celda.style.backgroundRepeat = "no-repeat";
+            celda.style.backgroundColor = "bluesky";
+        }
+
+
+        function dibujarTableroPropio(tablero) {
+            for (let y = 0; y < 10; y++) {
+                for (let x = 0; x < 10; x++) {
+                    const celda = obtenerCelda("tableroJugador", x, y);
+                    const valor = tablero[y][x];
+
+                    if (celda.classList.contains("hit")) {
+                        celda.className = "celda";
+                        celda.classList.add("hit", "hundido");
+                    }
+
+                    celda.style.backgroundImage = "";
+                    celda.style.backgroundSize = "";
+                    celda.style.backgroundPosition = "";
+                    celda.style.backgroundColor = "";
+
+                    if (!valor) continue;
+
+                    if (valor == "X") {
+                        // Si ya tiene la clase hit, no volver a procesar
+                        if (celda.classList.contains("hit")) continue;
+
+                        celda.classList.add("hit", "explosion");
+
+                        // Cambiar a hundido después de la animación
+                        setTimeout(() => {
+                            if (celda) {
+                                celda.classList.remove("explosion");
+                                celda.classList.add("hundido");
+                            }
+                        }, 400);
+                        continue;
+                    }
+                    if (valor == "O") {
+                        celda.classList.add("miss");
+                        continue;
+                    }
+
+                    const idBarco = valor[0];
+                    const orientacion = valor[1];
+                    const segmento = parseInt(valor[2]);
+                    const esHorizontal = orientacion == "h";
+
+                    const barco = barcosInfo[idBarco];
+                    if (!barco) continue;
+
+                    const imagen = esHorizontal ? barco.horizontal : barco.vertical;
+                    const tamaño = barco.tamaño;
+
+                    dibujarSegmentoBarco(celda, imagen, tamaño, segmento, esHorizontal);
+                }
+            }
+        }
+
+        function dibujarTableroEnemigo(tablero) {
+            for (let y = 0; y < 10; y++) {
+                for (let x = 0; x < 10; x++) {
+                    const celda = obtenerCelda("tableroEnemigo", x, y);
+                    const valor = tablero[y][x];
+
+                    if (valor == "X") {
+                        // Si ya tiene la clase hit, no volver a procesar
+                        if (celda.classList.contains("hit")) continue;
+
+                        celda.classList.add("hit", "explosion");
+
+                        // Cambiar a hundido después de la animación
+                        setTimeout(() => {
+                            if (celda) {
+                                celda.classList.remove("explosion");
+                                celda.classList.add("hundido");
+                            }
+                        }, 400);
+                        continue;
+                    }
+                    if (valor == "O") {
+                        celda.classList.add("miss");
+                        continue;
+                    }
+                }
+            }
+        }
+
+        btnConectar.addEventListener('click', async () => {
+
+            const nombre = document.getElementById('nombre').value.trim();
+
+            if (!nombre) {
+                alert("Escribe tu nombre");
+                return;
+            }
+
+            btnConectar.disabled = true;
+            btnConectar.innerText = "Esperando Conexión...";
+            btnConectar.classList.remove("botonconect");
+            btnConectar.classList.add("botonconectdisable");
+            idJugador = crypto.randomUUID();
+
+            try {
+
+                infoSala.innerHTML = "Buscando partida...";
+                estadoDiv.innerHTML = "Esperando rival...";
+
+                const response = await fetch(
+                    "/batallanaval/registrar",
+                    {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            Id: idJugador,
+                            Nombre: nombre
+                        })
+                    });
+
+                if (!response.ok) {
+                    throw new Error("No fue posible registrarse");
+                }
+
+
+                estadoActual = await response.json();
+
+                login.classList.add("hidden");
+                juego.classList.remove("hidden");
+
+                infoSala.innerHTML = "Partida encontrada";
+                estadoDiv.innerHTML = "Jugador conectado";
+
+                console.log(estadoActual);
+
+                crearTablero("tableroJugador", false);
+                crearTablero("tableroEnemigo", true);
+
+            }
+            catch (error) {
+
+                alert("Error al conectar");
+
+                btnConectar.disabled = false;
+
+                console.error(error);
+            }
+        });
+
+        async function listo() {
+            try {
+                const validarBarcos = await fetch("/batallanaval/barcosColocados?JugadorId=" + idJugador);
+                if (!validarBarcos.ok) {
+                    throw new Error("Asegurate de colocar todos los barcos");
+                }
+                estadoDiv.innerHTML = "Esperando que el rival termine de colocar sus barcos...";
+
+                document.getElementById("panelBarcos").style.display = "none";
+
+                document.querySelectorAll("#tableroJugador .celda").forEach(celda => {
+                    celda.style.pointerEvents = "none";
+                });
+
+                const response = await fetch("/batallanaval/listo", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        JugadorId: idJugador
+                    })
+                });
+                if (!response.ok) {
+                    throw new Error("No se pudo marcar como listo");
+                }
+                estadoActual = await response.json();
+
+                estadoDiv.innerHTML = estado.IdTurno == idJugador ? "Es tu turno" : "Turno enemigo";
+                cargarEstadoPartida(estadoActual);
+                if (estado.IdTurno != idJugador) {
+                    await esperar();
+                }
+            }
+            catch (error) {
+                estadoDiv.innerHTML = "Error al marcar como listo";
+                console.error(error);
+                document.getElementById("panelBarcos").style.display = "flex";
+
+            }
+        }
+        async function esperar() {
+            try {
+                iniciarTimerEspera();
+
+                const response = await fetch("/batallanaval/esperarTurno?JugadorId=" + idJugador);
+
+                if (!response.ok) {
+                    throw new Error("Error al esperar el turno");
+                }
+
+                const estado = await response.json();
+                detenerTimerEspera();
+                estadoDiv.innerHTML = estado.IdTurno == idJugador ? "Es tu turno" : "Turno enemigo";
+
+                cargarEstadoPartida(estado);
+
+                if (estado.IdTurno != idJugador) {
+                    await esperar();
+                }
+                else {
+                    iniciarTimerEspera();
+                }
+            }
+            catch (error) {
+                estadoDiv.innerHTML = "Error al esperar el turno";
+                console.error(error);
+            }
+        }
+
+        document.getElementById("jugarbtn").addEventListener("click", listo);
+        // Prueba
+
+        function cargarEstadoPartida(estado) {
+
+            console.log("ESTADO COMPLETO");
+            console.log(estado);
+
+            console.log("TABLERO PROPIO");
+            console.log(estado.TableroPropio);
+
+            estadoActual = estado;
+            if (disparosAcertados != estado.DisparosAcertados) {
+                disparosAcertados = estado.DisparosAcertados;
+                reproducirSonido("disparo");
+            };
+            if (disparosFallados != estado.DisparosFallados) {
+                disparosFallados = estado.DisparosFallados;
+                reproducirSonido("agua");
+
+            }
+            dibujarTableroPropio(
+                estado.TableroPropio
+            );
+            dibujarTableroEnemigo(
+                estado.TableroEnemigo
+            );
+            if (estado.IdGanador == idJugador) {
+                mostrarVictoria();
+            } else if (estado.IdGanador && estado.IdGanador != idJugador) {
+                mostrarDerrota();
+            }
+        }
+        function reproducirSonido(nombreSonido) {
+
+            const sonidoDisparo = document.getElementById("sonidoDisparo");
+            const sonidoAgua = document.getElementById("sonidoAgua");
+
+            sonidoDisparo.pause();
+            sonidoAgua.pause();
+
+            sonidoDisparo.currentTime = 0;
+            sonidoAgua.currentTime = 0;
+
+            if (nombreSonido == "disparo") {
+                sonidoDisparo.play();
+            }
+            else if (nombreSonido == "agua") {
+                sonidoAgua.play();
+            }
+        }
+        document.getElementById("portaaviones").addEventListener("click", () => {
+            seleccionarBarco("Portaaviones");
+        });
+        document.getElementById("acorazado").addEventListener("click", () => {
+            seleccionarBarco("Acorazado");
+        });
+        document.getElementById("crucero").addEventListener("click", () => {
+            seleccionarBarco("Crucero");
+        });
+        document.getElementById("submarino").addEventListener("click", () => {
+            seleccionarBarco("Submarino");
+        });
+        document.getElementById("destructor").addEventListener("click", () => {
+            seleccionarBarco("Destructor");
+        });
+
+        // prueba reinicio
+        //btnReiniciar.addEventListener('click', () => {
+        //    juego.classList.add('hidden');
+        //    login.classList.remove('hidden');
+
+        //    document.getElementById('nombre').value = '';
+
+        //    btnConectar.disabled = false;
+        //    btnConectar.classList.remove("botonconectdisable");
+        //    btnConectar.classList.add("botonconect");
+        //});
+        function reiniciarPartida() {
+            juego.classList.add('hidden');
+            login.classList.remove('hidden');
+
+            document.getElementById('nombre').value = '';
+
+            btnConectar.textContent = "Unirse a la partida";
+            btnConectar.disabled = false;
+            btnConectar.classList.remove("botonconectdisable");
+            btnConectar.classList.add("botonconect");
+            document.querySelectorAll('.boton-barco').forEach(boton => {
+                boton.classList.remove('seleccionado');
+            });
+            estadoActual = null;
+            barcoSeleccionado = null;
+            horizontal = true;
+            crearTablero("tableroJugador", false);
+            crearTablero("tableroEnemigo", true);
+            document.getElementById("panelBarcos").style.display = "flex";
+            estadoDiv.innerHTML = "Esperando jugador...";
+            infoSala.innerHTML = "Conectando...";
+            cerrarModalDerrota();
+            cerrarModalVictoria();
+            const sonidoVictoria = document.getElementById("sonidoVictoria");
+            const sonidoDerrota = document.getElementById("sonidoDerrota");
+            const sonidoDisparo = document.getElementById("sonidoDisparo");
+
+            sonidoVictoria.pause();
+            sonidoDerrota.pause();
+            sonidoDisparo.pause();
+
+            sonidoVictoria.currentTime = 0;
+            sonidoDerrota.currentTime = 0;
+            sonidoDisparo.currentTime = 0;
+
+
+        }
+
+        document.getElementById("btnConectar").addEventListener("click", () => {
+            document.getElementById("musicaFondo").play();
+
+        });
+
+
+        function mostrarVictoria() {
+            document.getElementById("sonidoVictoria").play();
+            document.getElementById("modalVictoria").classList.remove("hidden");
+            document.getElementById("modalVictoria").classList.add("modal");
+
+
+        }
+
+        function mostrarDerrota() {
+            document.getElementById("sonidoDerrota").play();
+            document.getElementById("modalDerrota").classList.remove("hidden");
+            document.getElementById("modalDerrota").classList.add("modal");
+        }
+
+        function cerrarModalVictoria() {
+            document.getElementById("modalVictoria").classList.add("hidden");
+            document.getElementById("modalVictoria").classList.remove("modal");
+        }
+
+        function cerrarModalDerrota() {
+
+            document.getElementById("modalDerrota").classList.add("hidden");
+            document.getElementById("modalDerrota").classList.remove("modal");
+
+        }
+        cerrarModalDerrota();
+        cerrarModalVictoria();
+
+        function iniciarTimerEspera() {
+            if (timerEspera) {
+                clearInterval(timerEspera);
+                timerEspera = null;
+            }
+
+            tiempoRestante = 5;
+            esperaActiva = true;
+
+            estadoDiv.innerHTML = `Turno enemigo... Esperando respuesta (${tiempoRestante}s) - Se declarará victoria si no responde`;
+
+            timerEspera = setInterval(() => {
+                if (!esperaActiva) return;
+
+                tiempoRestante--;
+                estadoDiv.innerHTML = `Turno enemigo... Esperando respuesta (${tiempoRestante}s) - Se declarará victoria si no responde`;
+
+                if (tiempoRestante <= 0) {
+                    clearInterval(timerEspera);
+                    timerEspera = null;
+                    esperaActiva = false;
+                    if (estadoActual.IdTurno == idJugador) {
+                        declararDerrotaPorAbandono();
+                        detenerTimerEspera();
+                    }
+                    declararVictoriaPorAbandono();
+                }
+            }, 1000);
+        }
+        function detenerTimerEspera() {
+            if (timerEspera) {
+                clearInterval(timerEspera);
+                timerEspera = null;
+            }
+            esperaActiva = false;
+
+            estadoDiv.style.backgroundColor = "";
+            estadoDiv.style.color = "";
+        }
+
+        async function declararVictoriaPorAbandono() {
+            if (!idJugador) return;
+
+            estadoDiv.innerHTML = "El rival no responde... Declarando victoria...";
+
+            try {
+                const response = await fetch("/batallanaval/victoriaPorAbandono", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        JugadorId: idJugador
+                    })
+                });
+
+                if (response.ok) {
+                    const estado = await response.json();
+                    cargarEstadoPartida(estado);
+
+
+                    document.querySelector("#modalVictoria p").textContent = "El rival ha abandonado la partida. ¡Victoria por abandono!";
+                    mostrarVictoria();
+                }
+            } catch (error) {
+                console.error("Error en victoria por abandono:", error);
+                estadoDiv.innerHTML = "Error de conexión. Verifica tu internet.";
+            }
+        }
+        async function declararDerrotaPorAbandono() {
+            if (!idJugador) return;
+
+            estadoDiv.innerHTML = "Durante tu turno no se recibio ninguna respuesta valida... Declarando derrota...";
+
+            try {
+                const response = await fetch("/batallanaval/victoriaPorAbandono", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        JugadorId: idJugador
+                    })
+                });
+
+                if (response.ok) {
+                    const estado = await response.json();
+                    cargarEstadoPartida(estado);
+
+
+                    document.querySelector("#modalDerrota p").textContent = "Durante tu turno no se recibio ninguna respuesta valida... ¡Derrota por abandono!";
+                    mostrarDerrota();
+                }
+            } catch (error) {
+                console.error("Error en derrota por abandono:", error);
+                estadoDiv.innerHTML = "Error de conexión. Verifica tu internet.";
+            }
+        }
+
+        async function colocarBarcosAleatoriamente() {
+            mostrarMensajeProgreso("🎲 Colocando barcos aleatoriamente...", "loading");
+
+            // Deshabilitar el botón de "Listo" durante el proceso
+            const btnListo = document.getElementById("jugarbtn");
+            const textoOriginal = btnListo.innerHTML;
+            btnListo.disabled = true;
+            btnListo.innerHTML = "⏳ Colocando...";
+
+            const barcos = [
+                { nombre: "Portaaviones", tamaño: 5, id: "1" },
+                { nombre: "Acorazado", tamaño: 4, id: "2" },
+                { nombre: "Crucero", tamaño: 3, id: "3" },
+                { nombre: "Submarino", tamaño: 3, id: "4" },
+                { nombre: "Destructor", tamaño: 2, id: "5" }
+            ];
+
+            let barcosColocados = 0;
+            let intentosFallidos = 0;
+            const MAX_INTENTOS_POR_BARCO = 100;
+
+            for (const barco of barcos) {
+                mostrarMensajeProgreso(`📍 Colocando ${barco.nombre} (tamaño ${barco.tamaño})...`, "loading");
+
+                let colocado = false;
+                let intentos = 0;
+
+                while (!colocado && intentos < MAX_INTENTOS_POR_BARCO) {
+                    intentos++;
+
+                    const x = Math.floor(Math.random() * 10);
+                    const y = Math.floor(Math.random() * 10);
+
+                    // 2. Generar orientación aleatoria (true = horizontal, false = vertical)
+                    const esHorizontal = Math.random() < 0.5;
+
+                    if (esHorizontal) {
+                        if (x + barco.tamaño > 10) continue; // Se sale por la derecha
+                    } else {
+                        if (y + barco.tamaño > 10) continue; // Se sale por abajo
+                    }
+
+                    const haySuperposicion = await validarSuperposicion(x, y, barco.tamaño, esHorizontal);
+                    if (haySuperposicion) continue;
+
+                    try {
+                        const response = await fetch("/batallanaval/posicionarbarco", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                JugadorId: idJugador,
+                                NombreBarco: barco.nombre,
+                                X: x,
+                                Y: y,
+                                Horizontal: esHorizontal
+                            })
+                        });
+
+                        if (response.ok) {
+                            estadoActual = await response.json();
+                            cargarEstadoPartida(estadoActual);
+                            barcosColocados++;
+                            colocado = true;
+                            intentosFallidos = 0;
+
+                            mostrarMensajeProgreso(`✅ ${barco.nombre} colocado (${barcosColocados}/5)`, "success");
+                            await delay(300);
+                        } else {
+                            intentosFallidos++;
+                            if (intentosFallidos % 10 === 0) {
+                                console.log(`Reintentando ${barco.nombre}, intento ${intentos}...`);
+                            }
+                        }
+                    } catch (error) {
+                        console.error(`Error al colocar ${barco.nombre}:`, error);
+                        intentosFallidos++;
+                    }
+                }
+
+                if (!colocado) {
+                    mostrarMensajeProgreso(`❌ Error: No se pudo colocar ${barco.nombre}`, "error");
+                    btnListo.disabled = false;
+                    btnListo.innerHTML = textoOriginal;
+                    return false;
+                }
+            }
+
+            mostrarMensajeProgreso("🎉 ¡Todos los barcos colocados exitosamente!", "success");
+
+            btnListo.disabled = false;
+            btnListo.innerHTML = textoOriginal;
+
+            setTimeout(() => {
+                estadoDiv.innerHTML = "✅ Barcos listos. Presiona 'Listo' para comenzar la batalla";
+            }, 2000);
+
+            return true;
+        }
+
+        async function validarSuperposicion(x, y, tamaño, esHorizontal) {
+            // Esperar a tener el estado actual
+            if (!estadoActual || !estadoActual.TableroPropio) {
+                return false; // No hay barcos aún, no hay superposición
+            }
+
+            const tablero = estadoActual.TableroPropio;
+
+            for (let i = 0; i < tamaño; i++) {
+                const posX = esHorizontal ? x + i : x;
+                const posY = esHorizontal ? y : y + i;
+
+                // Verificar si la celda está ocupada por algún barco
+                const valorCelda = tablero[posY][posX];
+                if (valorCelda && valorCelda !== "X" && valorCelda !== "O") {
+                    return true; // Hay superposición
+                }
+            }
+
+            return false; // No hay superposición
+        }
+
+        function mostrarMensajeProgreso(mensaje, tipo) {
+            estadoDiv.innerHTML = mensaje;
+
+            estadoDiv.style.backgroundColor = "";
+            estadoDiv.style.color = "";
+
+            switch (tipo) {
+                case "loading":
+                    estadoDiv.style.backgroundColor = "#fef3c7";
+                    estadoDiv.style.color = "#92400e";
+                    break;
+                case "success":
+                    estadoDiv.style.backgroundColor = "#d1fae5";
+                    estadoDiv.style.color = "#065f46";
+                    break;
+                case "error":
+                    estadoDiv.style.backgroundColor = "#fee2e2";
+                    estadoDiv.style.color = "#991b1b";
+                    break;
+            }
+        }
+
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function iniciarColocacionAleatoria() {
+            if (!idJugador) {
+                estadoDiv.innerHTML = "❌ Primero conéctate a una partida";
+                return;
+            }
+
+            const confirmar = confirm("¿Deseas colocar los barcos aleatoriamente? Esto reemplazará tu configuración actual.");
+            if (!confirmar) return;
+
+            await reiniciarTableroBarcos();
+
+            await colocarBarcosAleatoriamente();
+        }
+
+        async function reiniciarTableroBarcos() {
+            const response = await fetch("/batallanaval/obtenerEstado?JugadorId=" + idJugador);
+            if (response.ok) {
+                estadoActual = await response.json();
+                cargarEstadoPartida(estadoActual);
+            }
+
+            for (let y = 0; y < 10; y++) {
+                for (let x = 0; x < 10; x++) {
+                    const celda = obtenerCelda("tableroJugador", x, y);
+                    if (celda && !celda.classList.contains("hit") && !celda.classList.contains("miss")) {
+                        celda.style.backgroundImage = "";
+                        celda.style.backgroundColor = "#dbeafe";
+                    }
+                }
+            }
+        }
+        document.getElementById("btnAleatorio").addEventListener("click", iniciarColocacionAleatoria);
+    </script>
+
+    <audio id="sonidoVictoria">
+        <source src="sounds/victoria2.mp3" type="audio/mpeg">
+    </audio>
+
+
+    <audio id="sonidoDerrota">
+        <source src="sounds/derrota1.mp3" type="audio/mpeg">
+    </audio>
+
+
+    <audio id="musicaFondo" loop>
+        <source src="sounds/fondojuego2.mp3" type="audio/mpeg">
+    </audio>
+
+    <audio id="sonidoDisparo">
+        <source src="sounds/disparo1.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sonidoAgua">
+        <source src="sounds/disparo2.mp3" type="audio/mpeg">
+    </audio>
+</body>
+</html>
