@@ -210,6 +210,7 @@ namespace BatallaNavalServer.Services
                 string valorBarco = $"{idBarco}{orientacion}{i}";
                 jugadorActual.Tablero.EstadoTablero[actualY][actualX] = valorBarco;
             }
+
             var barcoColocado = jugadorActual.Tablero.Barcos.FirstOrDefault(b => b.Id == idBarco);
             if (barcoColocado != null)
             {
@@ -253,9 +254,10 @@ namespace BatallaNavalServer.Services
             return true;
         }
 
-        public void BorrarPartidas()
-        {
-            Partidas.RemoveAll(x => x.Borrar);
-        }
+
+        //public void LimpiarPartidas()
+        //{
+        //    Partidas.RemoveAll(x => x.Borrar);
+        //}
     }
 }

@@ -6,7 +6,27 @@
         xmlns:local="clr-namespace:BatallaNavalServer"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
+    <Grid Margin="20">
+
+        <StackPanel VerticalAlignment="Center">
+
+            <TextBlock Text="Servidor Batalla Naval"
+                       FontSize="24"
+                       FontWeight="Bold"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,20"/>
+
+            <Button x:Name="btnIniciar"
+                    Content="Iniciar Servidor"
+                    Height="40"
+                    Click="BtnIniciar_Click"/>
+
+            <TextBlock x:Name="txtEstado"
+                       Margin="0,20,0,0"
+                       FontSize="16"
+                       TextAlignment="Center"/>
+
+        </StackPanel>
 
     </Grid>
 </Window>

@@ -17,10 +17,9 @@ namespace BatallaNavalServer.Services
         {
             this.partidasService = partidasService;
             server = new HttpListener();
-            string url = $"http://localhost:8080/batallanaval/";
+            string url = "http://+:8080/batallanaval/";
             server.Prefixes.Add(url);
         }
-        // cosas pendientes, iniciar en mainwindows el servidor, agregar el acl, pequeños detalles en la responsividad, borrar la partida de las partidas.
         public void Iniciar()
         {
             server.Start();
@@ -32,22 +31,6 @@ namespace BatallaNavalServer.Services
             };
             hiloPrincipal.Start();
 
-            // crear un hilo para limpiar partidas antiguas cada cierto tiempo.
-            Thread hiloLimpieza = new Thread(BorrarPartidasPeriodicamente)
-            {
-                IsBackground = true
-            };
-            hiloLimpieza.Start();
-        }
-
-        private void BorrarPartidasPeriodicamente()
-        {
-            while (activo)
-            {
-                Thread.Sleep(3000);
-
-                partidasService.BorrarPartidas();
-            }
         }
 
         private void EscucharPeticiones(object? obj)

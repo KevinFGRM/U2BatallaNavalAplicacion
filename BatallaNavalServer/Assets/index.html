@@ -55,6 +55,10 @@
             color: transparent;
         }
 
+        .tituloCont {
+            display: flex;
+            flex-direction:column;
+        }
 
 
         .input {
@@ -469,10 +473,6 @@
             object-fit: contain;
             animation: spin 20s linear infinite;
         }
-
-
-
-
     </style>
 </head>
 <body>
@@ -480,7 +480,7 @@
     <div class="contenedor">
 
         <div id="login" class="contlogin">
-            <div class="titulo"> <img src="img/volante.png" style="height:50vh;" /> BATALLA NAVAL</div>
+            <div class="tituloCont"> <img src="img/volante.png" style="height:50vh;" /> <h1 class="titulo">BATALLA NAVAL</h1></div>
             <input type="text" id="nombre" class="input" placeholder="Nombre de jugador..." maxlength="20">
             <button id="btnConectar" class="botonconect"> Unirse a la partida</button>
         </div>
@@ -524,8 +524,7 @@
                 <button id="jugarbtn" class="boton-rotar">
                     <span>Listo</span>
                 </button>
-                <button id="btnAleatorio" class="boton-rotar" style="background: #22c55e;">
-                    <img src="img/dados.png" alt="Aleatorio" class="icono-rotar" style="animation: none;" />
+                <button id="btnAleatorio" class="boton-rotar" style="background: #22c55e; width:100%; height:50px;">
                     <span>Colocar Aleatorio</span>
                 </button>
             </div>
@@ -553,23 +552,6 @@
 
             <div id="estado" class="mensaje">Esperando jugador... </div>
 
-            <!--<div class="estadisticas">
-
-                <div class="estat">
-                    <img src="img/barco3.png" /> Barcos: <span id="barcos">5</span>
-                </div>
-
-                <div class="estat">
-                    <img src="img/explosion.png" /> Impactos: <span id="impactos">0</span>
-                </div>
-
-                <div class="estat">
-                    <img src="img/bolaCanon.png" /> Disparos: <span id="disparos">0</span>
-                </div>
-
-            </div>
-
-            <button id="btnReiniciar" class="botonreiniciar"> Nueva partida </button>-->
         </div>
     </div>
 
@@ -654,7 +636,7 @@
         const estadoDiv = document.getElementById('estado');
         const infoSala = document.getElementById('infoSala');
 
-        //validar desconexion
+        //Validar desconexion
         let timerEspera = null;
         let tiempoRestante = 30;
         let esperaActiva = false;
@@ -821,7 +803,7 @@
             segmento,
             horizontal
         ) {
-            const anchoCelda = 40;
+            const anchoCelda = celda.offsetWidth;
             const gap = 4;
             if (celda.classList.contains("hit")) {
                 return;
@@ -1073,11 +1055,8 @@
 
         function cargarEstadoPartida(estado) {
 
-            console.log("ESTADO COMPLETO");
-            console.log(estado);
-
-            console.log("TABLERO PROPIO");
-            console.log(estado.TableroPropio);
+            //console.log(estado);
+            //console.log(estado.TableroPropio);
 
             estadoActual = estado;
             if (disparosAcertados != estado.DisparosAcertados) {
@@ -1135,17 +1114,6 @@
             seleccionarBarco("Destructor");
         });
 
-        // prueba reinicio
-        //btnReiniciar.addEventListener('click', () => {
-        //    juego.classList.add('hidden');
-        //    login.classList.remove('hidden');
-
-        //    document.getElementById('nombre').value = '';
-
-        //    btnConectar.disabled = false;
-        //    btnConectar.classList.remove("botonconectdisable");
-        //    btnConectar.classList.add("botonconect");
-        //});
         function reiniciarPartida() {
             juego.classList.add('hidden');
             login.classList.remove('hidden');
@@ -1191,6 +1159,7 @@
 
 
         function mostrarVictoria() {
+            detenerTimerEspera();
             document.getElementById("sonidoVictoria").play();
             document.getElementById("modalVictoria").classList.remove("hidden");
             document.getElementById("modalVictoria").classList.add("modal");
@@ -1199,6 +1168,7 @@
         }
 
         function mostrarDerrota() {
+            detenerTimerEspera();
             document.getElementById("sonidoDerrota").play();
             document.getElementById("modalDerrota").classList.remove("hidden");
             document.getElementById("modalDerrota").classList.add("modal");
@@ -1224,16 +1194,16 @@
                 timerEspera = null;
             }
 
-            tiempoRestante = 5;
+            tiempoRestante = 30;
             esperaActiva = true;
 
-            estadoDiv.innerHTML = `Turno enemigo... Esperando respuesta (${tiempoRestante}s) - Se declarará victoria si no responde`;
+            actualizarMensajeEspera();
 
             timerEspera = setInterval(() => {
                 if (!esperaActiva) return;
 
                 tiempoRestante--;
-                estadoDiv.innerHTML = `Turno enemigo... Esperando respuesta (${tiempoRestante}s) - Se declarará victoria si no responde`;
+                actualizarMensajeEspera();
 
                 if (tiempoRestante <= 0) {
                     clearInterval(timerEspera);
@@ -1247,6 +1217,21 @@
                 }
             }, 1000);
         }
+        function actualizarMensajeEspera() {
+
+            const esMiTurno = estadoActual?.IdTurno == idJugador;
+
+            if (esMiTurno) {
+                estadoDiv.innerHTML =
+                    `Es tu turno... Esperando respuesta del servidor (${tiempoRestante}s)`;
+            }
+            else {
+                estadoDiv.innerHTML =
+                    `Turno enemigo... Esperando respuesta (${tiempoRestante}s) - Se declarará victoria si no responde`;
+            }
+        }
+
+
         function detenerTimerEspera() {
             if (timerEspera) {
                 clearInterval(timerEspera);
@@ -1410,7 +1395,7 @@
             btnListo.innerHTML = textoOriginal;
 
             setTimeout(() => {
-                estadoDiv.innerHTML = "✅ Barcos listos. Presiona 'Listo' para comenzar la batalla";
+                estadoDiv.innerHTML = "✅ Barcos listos. Esperando que el enemigo termine de colocar sus barcos...";
             }, 2000);
 
             return true;
