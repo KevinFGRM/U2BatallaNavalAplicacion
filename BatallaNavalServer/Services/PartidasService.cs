@@ -254,10 +254,5 @@ namespace BatallaNavalServer.Services
             return true;
         }
 
-
-        //public void LimpiarPartidas()
-        //{
-        //    Partidas.RemoveAll(x => x.Borrar);
-        //}
     }
 }

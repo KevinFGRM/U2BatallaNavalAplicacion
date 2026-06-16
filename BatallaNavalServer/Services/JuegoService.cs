@@ -31,7 +31,6 @@ namespace BatallaNavalServer.Services
                 IsBackground = true
             };
             hiloPrincipal.Start();
-
         }
 
         private void EscucharPeticiones(object? obj)
@@ -86,8 +85,6 @@ namespace BatallaNavalServer.Services
                 {
                     ServirArchivo(response, "style.css", "text/css");
                 }
-
-
                 else if (request.HttpMethod == "POST" && request.RawUrl == "/batallanaval/disparar")
                 {
                     string json = GetJson(request);
@@ -278,7 +275,6 @@ namespace BatallaNavalServer.Services
                         }
                     }
 
-
                 }
                 else if (request.HttpMethod == "POST" && request.RawUrl == "/batallanaval/victoriaPorAbandono")
                 {
@@ -355,6 +351,7 @@ namespace BatallaNavalServer.Services
             response.ContentLength64 = buffer.Length;
             response.ContentType = "application/json";
             response.OutputStream.Write(buffer, 0, buffer.Length);
+            response.StatusCode = 200;
         }
 
         private void ServirArchivo(HttpListenerResponse response, string nombreArchivo, string contentType)
