@@ -109,6 +109,7 @@ namespace BatallaNavalServer.Services
             if (jugadorEnemigo.Tablero.Barcos.All(b => b.Hundido))
             {
                 partida.IdGanador = jugadorActual.Id;
+                partida.IdTurno = null;
                 partida.Borrar = true;
                 return true;
             }
@@ -249,6 +250,7 @@ namespace BatallaNavalServer.Services
                 return false;
 
             partida.IdGanador = jugadorId;
+            partida.IdTurno = null;
             partida.Abandono = true;
             partida.Borrar = true;
             return true;

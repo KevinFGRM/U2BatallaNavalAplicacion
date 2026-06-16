@@ -232,7 +232,7 @@ namespace BatallaNavalServer.Services
                         else
                         {
                             var actualizar = partida.ContadorDisparos;
-                            while (partida.IdTurno != id)
+                            while (partida.IdTurno != id && partida.IdGanador == null && !partida.Borrar)
                             {
                                 var partida2 = partidasService.BuscarPartida(id, null);
                                 if (actualizar != partida2.ContadorDisparos)
@@ -243,7 +243,8 @@ namespace BatallaNavalServer.Services
 
                                 Thread.Sleep(500);
                             }
-                            RegresarTablero(response, partida, id);
+                                RegresarTablero(response, partida, id);
+                                RegresarTablero(response, partida, id);
                         }
                     }
                 }

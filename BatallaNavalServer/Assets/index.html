@@ -713,7 +713,18 @@
 
                 cargarEstadoPartida(estadoActual);
                 if (estadoActual.IdTurno != idJugador) {
-                    esperar();
+                    cargarEstadoPartida(estadoActual);
+
+                    if (estadoActual.IdGanador) {
+                        return;
+                    }
+
+                    if (estadoActual.IdTurno != idJugador) {
+                        esperar();
+                    }
+                    else {
+                        iniciarTimerEspera();
+                    }
                 }
                 else {
                     iniciarTimerEspera();
@@ -1042,7 +1053,16 @@
                 cargarEstadoPartida(estado);
 
                 if (estado.IdTurno != idJugador) {
-                    await esperar();
+                    if (estado.IdGanador) {
+                        return;
+                    }
+
+                    if (estado.IdTurno != idJugador) {
+                        await esperar();
+                    }
+                    else {
+                        iniciarTimerEspera();
+                    }
                 }
                 else {
                     iniciarTimerEspera();
@@ -1064,13 +1084,14 @@
 
             estadoActual = estado;
             if (disparosAcertados != estado.DisparosAcertados) {
+                if (estado.DisparosAcertados > 0)
+                    reproducirSonido("disparo");
                 disparosAcertados = estado.DisparosAcertados;
-                reproducirSonido("disparo");
             };
             if (disparosFallados != estado.DisparosFallados) {
+                if (estado.DisparosFallados > 0)
+                    reproducirSonido("agua");
                 disparosFallados = estado.DisparosFallados;
-                reproducirSonido("agua");
-
             }
             dibujarTableroPropio(
                 estado.TableroPropio
@@ -1119,6 +1140,7 @@
         });
 
         function reiniciarPartida() {
+            detenerTimerEspera();
             juego.classList.add('hidden');
             login.classList.remove('hidden');
 
@@ -1132,6 +1154,7 @@
                 boton.classList.remove('seleccionado');
             });
             estadoActual = null;
+            esperaActiva = false;
             barcoSeleccionado = null;
             horizontal = true;
             crearTablero("tableroJugador", false);
@@ -1153,7 +1176,7 @@
             sonidoDerrota.currentTime = 0;
             sonidoDisparo.currentTime = 0;
 
-
+            console.log(estadoActual);
         }
 
         document.getElementById("btnConectar").addEventListener("click", () => {
